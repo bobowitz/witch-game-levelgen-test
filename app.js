@@ -8,8 +8,8 @@ let drawCircle = (x, y, r) => {
 };
 
 FRAMERATE = 60.0;
-W = 30;
-H = 30;
+W = 50;
+H = 50;
 
 class Partition {
     constructor(x, y, w, h, type) {
@@ -103,6 +103,14 @@ let generate_dungeon_candidate = () => {
         }
     };
 
+    let remove_wall_rooms = () => {
+        for (const partition of partitions) {
+            if (partition.x === 0 || partition.y === 0 || partition.x + partition.w === W || partition.y + partition.h === H) {
+                partitions = partitions.filter(p => p != partition);
+            }
+        }
+    }
+
     let populate_grid = () => {
         for (let x = 0; x < W; x++) {
             grid[x] = [];
@@ -117,7 +125,8 @@ let generate_dungeon_candidate = () => {
 
     for (let i = 0; i < 2; i++) split_partitions(0.75);
     for (let i = 0; i < 2; i++) split_partitions(1);
-    for (let i = 0; i < 2; i++) split_partitions(0.75);
+    for (let i = 0; i < 4; i++) split_partitions(0.5);
+    remove_wall_rooms();
     populate_grid();
 
     partitions.sort((a, b) => a.area() - b.area());
@@ -175,7 +184,7 @@ let generate_dungeon_candidate = () => {
 
     // make sure we haven't removed all the rooms
     if (partitions.length === 0) {
-        throw "partitions.length = 0";
+        return []; // for now just return an empty list so we can retry
     }
 
     // make some loops
